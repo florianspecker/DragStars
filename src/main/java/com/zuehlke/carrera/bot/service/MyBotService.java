@@ -20,7 +20,7 @@ import java.util.Date;
 public class MyBotService {
 
     private static final String baseUrl = "http://relay2.beta.swisscloud.io";
-    private static final String teamId = "DragStars";        // TODO Put here your team id
+    private static final String teamId = "DragStars";
     private static final String accessCode = "1337toor";    // TODO Put here your team access code
 
     private final Client client;
