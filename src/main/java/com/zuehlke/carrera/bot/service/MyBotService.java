@@ -2,8 +2,6 @@ package com.zuehlke.carrera.bot.service;
 
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SpeedControl;
-import org.apache.log4j.spi.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Client;
@@ -22,7 +20,7 @@ import java.util.Date;
 public class MyBotService {
 
     private static final String baseUrl = "http://relay2.beta.swisscloud.io";
-    private static final String teamId = "testTeam";        // TODO Put here your team id
+    private static final String teamId = "DragStars";        // TODO Put here your team id
     private static final String accessCode = "1337toor";    // TODO Put here your team access code
 
     private final Client client;
