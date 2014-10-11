@@ -4,15 +4,12 @@ CREATE TABLE sensor_events
     id INT PRIMARY KEY AUTO_INCREMENT,
     type INT NOT NULL,
     timestamp_sent BIGINT NOT NULL,
-    acc_x FLOAT NOT NULL,
-    acc_y FLOAT NOT NULL,
-    acc_z FLOAT NOT NULL,
-    gyr_x FLOAT NOT NULL,
-    gyr_y FLOAT NOT NULL,
-    gyr_z FLOAT NOT NULL,
-    mag_x FLOAT NOT NULL,
-    mag_y FLOAT NOT NULL,
-    mag_z FLOAT NOT NULL,
+    acc_x FLOAT ,
+    acc_y FLOAT ,
+    acc_z FLOAT ,
+    gyr_x FLOAT ,
+    gyr_y FLOAT ,
+    gyr_z FLOAT ,
     timestamp_received BIGINT NOT NULL
 );
 
