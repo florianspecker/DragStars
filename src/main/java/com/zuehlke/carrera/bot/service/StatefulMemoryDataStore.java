@@ -3,6 +3,7 @@ package com.zuehlke.carrera.bot.service;
 import com.zuehlke.carrera.bot.dao.SensorEventDAO;
 import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
+import com.zuehlke.carrera.bot.model.SensorEventType;
 import com.zuehlke.carrera.bot.model.SpeedControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +110,15 @@ public class StatefulMemoryDataStore {
     private Queue<SensorEvent> rawSensorEvents = new ConcurrentLinkedQueue<SensorEvent>();
     private List<SensorEvent> processedEvents = Collections.synchronizedList(new ArrayList<SensorEvent>());
     private Queue<SpeedControl> speedControls = new ConcurrentLinkedQueue<SpeedControl>();
+    private List<SensorEvent> roundPassedEvents = Collections.synchronizedList(new ArrayList<SensorEvent>());
+
+    public List<SensorEvent> getRoundPassedEvents() {
+        return roundPassedEvents;
+    }
+
+    public List<SensorEvent> getProcessedEvents() {
+        return processedEvents;
+    }
 
     private void addSpeedControl(SpeedControl speedControl) {
         speedControls.add(speedControl);
@@ -128,6 +138,12 @@ public class StatefulMemoryDataStore {
 
     public void addSensorEvent(SensorEvent sensorEvent) {
         rawSensorEvents.add(sensorEvent);
+        if (SensorEventType.ROUND_PASSED.equals(sensorEvent.getType())) {
+            if (roundPassedEvents.isEmpty() ||
+                    roundPassedEvents.get(roundPassedEvents.size() - 1).getTimeStamp() + 1000 < sensorEvent.getTimeStamp()) {
+                roundPassedEvents.add(sensorEvent);
+            }
+        }
 
         if (rawSensorEvents.size() > 12) {
             LOGGER.info("got more than 12 raw sensorEvents, triggering async processing now");
