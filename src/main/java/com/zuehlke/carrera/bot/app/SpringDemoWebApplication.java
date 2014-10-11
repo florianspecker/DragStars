@@ -4,12 +4,6 @@
  */
 package com.zuehlke.carrera.bot.app;
 
-import java.util.Arrays;
-
-import javax.annotation.Resource;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +28,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
+import javax.annotation.Resource;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Arrays;
+
 /**
  * @author Nicolas Regez
  * @since 24.02.2014
@@ -45,6 +44,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 @ComponentScan("com.zuehlke.carrera.bot")
 @PropertySource("classpath:application.properties")
 public class SpringDemoWebApplication extends WebMvcConfigurerAdapter {
+
     private static final Logger logger = LoggerFactory.getLogger(SpringDemoWebApplication.class);
 
     @Autowired
@@ -78,7 +78,7 @@ public class SpringDemoWebApplication extends WebMvcConfigurerAdapter {
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
         LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
         emfb.setDataSource(ctx.getBean("spring-demo-db", DataSource.class));
-        emfb.setPackagesToScan(new String[] {"com.zuehlke.carrera.bot.model"});
+        emfb.setPackagesToScan(new String[]{"com.zuehlke.carrera.bot.model"});
         HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
         adapter.setGenerateDdl(true);
         adapter.setDatabase(Database.MYSQL);
