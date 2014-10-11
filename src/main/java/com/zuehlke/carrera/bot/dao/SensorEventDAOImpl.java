@@ -2,6 +2,8 @@ package com.zuehlke.carrera.bot.dao;
 
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SensorEventType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.sql.SQLException;
  */
 @Service
 public class SensorEventDAOImpl implements SensorEventDAO {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensorEventDAOImpl.class);
 
     private DataSource dataSource;
 
@@ -53,6 +57,8 @@ public class SensorEventDAOImpl implements SensorEventDAO {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
+            LOGGER.error("Error inserting SensorEvent " + sensorEvent.toString() + ": "
+                    + e.toString() + "; " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             if (conn != null) {
@@ -97,6 +103,7 @@ public class SensorEventDAOImpl implements SensorEventDAO {
             ps.close();
             return sensorEvent;
         } catch (SQLException e) {
+            LOGGER.error("Error reading SensorEvent with id " + id + ": " + e.toString() + "; " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             if (conn != null) {

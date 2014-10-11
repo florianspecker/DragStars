@@ -59,6 +59,7 @@ public class SpeedControl implements Serializable {
         return accessCode;
     }
 
+    @Override
     public String toString() {
         return getPower() + "";
     }

@@ -1,6 +1,8 @@
 package com.zuehlke.carrera.bot.dao;
 
 import com.zuehlke.carrera.bot.model.SpeedControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,8 @@ import static com.zuehlke.carrera.bot.util.Constants.TEAM_ID;
 @Service
 public class SpeedControlDAOImpl implements SpeedControlDAO {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpeedControlDAOImpl.class);
+
     private DataSource dataSource;
 
     @Autowired
@@ -43,6 +47,8 @@ public class SpeedControlDAOImpl implements SpeedControlDAO {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
+            LOGGER.error("Error inserting SpeedControl " + speedControl.toString() + ": "
+                    + e.toString() + "; " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             if (conn != null) {
@@ -73,6 +79,7 @@ public class SpeedControlDAOImpl implements SpeedControlDAO {
             ps.close();
             return speedControl;
         } catch (SQLException e) {
+            LOGGER.error("Error reading SpeedControl with id " + id + ": " + e.toString() + "; " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             if (conn != null) {
