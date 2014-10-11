@@ -1,7 +1,7 @@
 -- sensor_events table
 CREATE TABLE sensor_events
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     type INT NOT NULL,
     timestamp_sent BIGINT NOT NULL,
     acc_x FLOAT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE sensor_events
 -- speed_controls table
 CREATE TABLE speed_controls
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     timestamp_sent BIGINT NOT NULL,
     timestamp_received BIGINT,
     power DOUBLE NOT NULL
