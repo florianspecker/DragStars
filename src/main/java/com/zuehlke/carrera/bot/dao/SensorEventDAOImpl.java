@@ -38,21 +38,29 @@ public class SensorEventDAOImpl implements SensorEventDAO {
 
         String sql = "INSERT INTO sensor_events (type, timestamp_sent, timestamp_received, " +
                 "acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z" +
-                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                ") VALUES (0, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql_round = "INSERT INTO sensor_events (type, timestamp_sent, timestamp_received" +
+                ") VALUES (1, ?, ?)";
         Connection conn = null;
 
         try {
             conn = dataSource.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, SensorEventType.CAR_SENSOR_DATA.equals(sensorEvent.getType()) ? 0 : 1);
-            ps.setLong(2, sensorEvent.getTimeStamp());
-            ps.setLong(3, sensorEvent.getTimeStampReceived());
-            ps.setFloat(4, sensorEvent.getAcc()[0]);
-            ps.setFloat(5, sensorEvent.getAcc()[1]);
-            ps.setFloat(6, sensorEvent.getAcc()[2]);
-            ps.setFloat(7, sensorEvent.getGyr()[0]);
-            ps.setFloat(8, sensorEvent.getGyr()[1]);
-            ps.setFloat(9, sensorEvent.getGyr()[2]);
+            PreparedStatement ps;
+            if (SensorEventType.CAR_SENSOR_DATA.equals(sensorEvent.getType())) {
+                ps = conn.prepareStatement(sql);
+                ps.setLong(1, sensorEvent.getTimeStamp());
+                ps.setLong(2, sensorEvent.getTimeStampReceived());
+                ps.setFloat(3, sensorEvent.getAcc()[0]);
+                ps.setFloat(4, sensorEvent.getAcc()[1]);
+                ps.setFloat(5, sensorEvent.getAcc()[2]);
+                ps.setFloat(6, sensorEvent.getGyr()[0]);
+                ps.setFloat(7, sensorEvent.getGyr()[1]);
+                ps.setFloat(8, sensorEvent.getGyr()[2]);
+            } else {
+                ps = conn.prepareStatement(sql_round);
+                ps.setLong(1, sensorEvent.getTimeStamp());
+                ps.setLong(2, sensorEvent.getTimeStampReceived());
+            }
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
