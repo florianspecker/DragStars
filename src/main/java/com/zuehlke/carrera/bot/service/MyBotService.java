@@ -103,6 +103,7 @@ public class MyBotService {
      */
     public void sendSpeedControl(double power) {
         SpeedControl control = new SpeedControl(power, TEAM_ID, ACCESS_CODE, new Date().getTime());
+        LOGGER.info("Sending SpeedControl Data: " + control.toString());
         speedControlDAO.insert(control);
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
