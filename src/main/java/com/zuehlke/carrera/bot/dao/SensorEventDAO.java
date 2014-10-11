@@ -10,6 +10,9 @@ import com.zuehlke.carrera.bot.model.SensorEvent;
  * @author Florian Specker
  */
 public interface SensorEventDAO {
+
     public void insert(SensorEvent sensorEvent);
+
     public SensorEvent findById(int id);
+
 }
