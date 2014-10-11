@@ -30,6 +30,7 @@ public class SensorEvent implements Serializable {
     private float[] gyr;
     private float[] mag;
     private long timeStampReceived;
+    private double power;
 
     /**
      * Empty constructor for serialisation
@@ -122,11 +123,21 @@ public class SensorEvent implements Serializable {
         this.timeStampReceived = timeStampReceived;
     }
 
+    public double getPower() {
+        return power;
+    }
+
+    public void setPower(double power) {
+        this.power = power;
+    }
+
     @Override
     public String toString() {
         return "SensorEvent{" +
                 "type=" + type +
                 ", timeStamp=" + timeStamp +
+                ", timeStampReceived=" + timeStampReceived +
+                ", power=" + power +
                 ", acc=" + Arrays.toString(acc) +
                 ", gyr=" + Arrays.toString(gyr) +
                 ", mag=" + Arrays.toString(mag) +

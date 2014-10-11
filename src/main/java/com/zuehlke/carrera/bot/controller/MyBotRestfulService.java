@@ -51,4 +51,12 @@ public class MyBotRestfulService {
         return power;
     }
 
+    @RequestMapping(value = "store", method = RequestMethod.GET, produces = "text/plain")
+    @ResponseBody
+    public String storeSensorEvents() {
+        LOGGER.info("Storing data to DB");
+        myBotService.storeSensorEvents();
+        return "success";
+    }
+
 }

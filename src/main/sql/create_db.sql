@@ -10,14 +10,6 @@ CREATE TABLE sensor_events
     gyr_x FLOAT ,
     gyr_y FLOAT ,
     gyr_z FLOAT ,
-    timestamp_received BIGINT NOT NULL
-);
-
--- speed_controls table
-CREATE TABLE speed_controls
-(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    timestamp_sent BIGINT NOT NULL,
-    timestamp_received BIGINT,
-    power DOUBLE NOT NULL
-);
+    timestamp_received BIGINT NOT NULL,
+    power DOUBLE
+) ENGINE = MYISAM ;

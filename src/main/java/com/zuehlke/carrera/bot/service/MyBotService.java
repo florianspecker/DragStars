@@ -44,6 +44,10 @@ public class MyBotService {
         return setPower(INITIAL_POWER);
     }
 
+    public void storeSensorEvents() {
+        statefulMemoryDataStore.storeSensorEvents();
+    }
+
     /**
      * Occurs when the bot receives sensor data from the car or the race-track.
      *

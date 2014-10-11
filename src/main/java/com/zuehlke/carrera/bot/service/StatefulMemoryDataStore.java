@@ -1,22 +1,16 @@
 package com.zuehlke.carrera.bot.service;
 
 import com.zuehlke.carrera.bot.dao.SensorEventDAO;
-import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SensorEventType;
-import com.zuehlke.carrera.bot.model.SpeedControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created on 11/10/14.
@@ -32,17 +26,14 @@ public class StatefulMemoryDataStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatefulMemoryDataStore.class);
 
     private SensorEventDAO sensorEventDAO;
-    private SpeedControlDAO speedControlDAO;
 
     private double currentPower;
 
     public double getCurrentPower() {
-        addSpeedControl(new SpeedControl(currentPower, System.currentTimeMillis()));
         return currentPower;
     }
 
     public void setCurrentPower(double currentPower) {
-        addSpeedControl(new SpeedControl(currentPower, System.currentTimeMillis()));
         this.currentPower = currentPower;
     }
 
@@ -55,11 +46,6 @@ public class StatefulMemoryDataStore {
     @Autowired
     public void setSensorEventDAO(SensorEventDAO sensorEventDAO) {
         this.sensorEventDAO = sensorEventDAO;
-    }
-
-    @Autowired
-    public void setSpeedControlDAO(SpeedControlDAO speedControlDAO) {
-        this.speedControlDAO = speedControlDAO;
     }
 
 
@@ -107,57 +93,38 @@ public class StatefulMemoryDataStore {
     /**
      * ** in-memory data store / async data inserter ****
      */
-    private Queue<SensorEvent> rawSensorEvents = new ConcurrentLinkedQueue<SensorEvent>();
-    private List<SensorEvent> processedEvents = Collections.synchronizedList(new ArrayList<SensorEvent>());
-    private Queue<SpeedControl> speedControls = new ConcurrentLinkedQueue<SpeedControl>();
-    private List<SensorEvent> roundPassedEvents = Collections.synchronizedList(new ArrayList<SensorEvent>());
+    private List<SensorEvent> sensorEvents = new ArrayList<SensorEvent>();
+    private List<SensorEvent> roundPassedEvents = new ArrayList<SensorEvent>();
+    private List<Integer> roundPassedEventsIndexes = new ArrayList<>();
+
+    public List<SensorEvent> getSensorEvents() {
+        return sensorEvents;
+    }
 
     public List<SensorEvent> getRoundPassedEvents() {
         return roundPassedEvents;
     }
 
-    public List<SensorEvent> getProcessedEvents() {
-        return processedEvents;
-    }
-
-    private void addSpeedControl(SpeedControl speedControl) {
-        speedControls.add(speedControl);
-        LOGGER.info("Sending power value " + speedControl.getPower());
-
-        if (!speedControls.isEmpty()) {
-            processSpeedControls();
-        }
-    }
-
-    @Async
-    private void processSpeedControls() {
-        while (!speedControls.isEmpty()) {
-            speedControlDAO.insert(speedControls.remove());
-        }
+    public List<Integer> getRoundPassedEventsIndexes() {
+        return roundPassedEventsIndexes;
     }
 
     public void addSensorEvent(SensorEvent sensorEvent) {
-        rawSensorEvents.add(sensorEvent);
+        sensorEvent.setPower(currentPower);
+        sensorEvents.add(sensorEvent);
         if (SensorEventType.ROUND_PASSED.equals(sensorEvent.getType())) {
             if (roundPassedEvents.isEmpty() ||
                     roundPassedEvents.get(roundPassedEvents.size() - 1).getTimeStamp() + 1000 < sensorEvent.getTimeStamp()) {
                 roundPassedEvents.add(sensorEvent);
+                roundPassedEventsIndexes.add(sensorEvents.size() - 1);
             }
-        }
-
-        if (rawSensorEvents.size() > 12) {
-            LOGGER.info("got more than 12 raw sensorEvents, triggering async processing now");
-            processRawSensorEvents();
         }
     }
 
-    @Async
-    private void processRawSensorEvents() {
-        while (rawSensorEvents.size() > 3) {
-            SensorEvent sensorEvent = rawSensorEvents.remove();
-            processedEvents.add(sensorEvent);
-            sensorEventDAO.insert(sensorEvent);
-        }
+    public void storeSensorEvents() {
+        sensorEventDAO.insert(sensorEvents);
+        sensorEvents.clear();
+        roundPassedEvents.clear();
     }
 
 
