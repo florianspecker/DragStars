@@ -39,7 +39,7 @@ public class MyBotService {
     private SensorEventDAO sensorEventDAO;
     private SpeedControlDAO speedControlDAO;
 
-    private double initial_power = 0;
+    private double initial_power = 100;
 
     /**
      * Creates a new MyBotService
@@ -79,13 +79,13 @@ public class MyBotService {
             case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
                 // TODO Handle Car sensor data more intelligently
-                if (StatefulMemoryDataStore.getInstance().getTimes().isEmpty()){
+                /*if (StatefulMemoryDataStore.getInstance().getTimes().isEmpty()){
                     StatefulMemoryDataStore.getInstance().getTimes().add(data.getTimeStamp());
                 }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>2000){
                     sendSpeedControl(120);
                 }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>4000){
                     sendSpeedControl(0);
-                }
+                }*/
                 break;
 
             case ROUND_PASSED:
