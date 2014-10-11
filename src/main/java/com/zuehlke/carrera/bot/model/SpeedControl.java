@@ -1,7 +1,6 @@
 package com.zuehlke.carrera.bot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zuehlke.carrera.bot.util.Constants;
 
 import java.io.Serializable;
 
@@ -13,8 +12,6 @@ import java.io.Serializable;
  */
 public class SpeedControl implements Serializable {
 
-    private String teamId;
-    private String accessCode;
     private double power;
     private long timeStamp;
 
@@ -33,8 +30,6 @@ public class SpeedControl implements Serializable {
     public SpeedControl(double power, long timestamp) {
 
         this.power = power;
-        this.accessCode = Constants.ACCESS_CODE;
-        this.teamId = Constants.TEAM_ID;
         this.timeStamp = timestamp;
     }
 
@@ -46,16 +41,6 @@ public class SpeedControl implements Serializable {
     @JsonProperty("power")
     public double getPower() {
         return power;
-    }
-
-    @JsonProperty("teamId")
-    public String getTeamId() {
-        return teamId;
-    }
-
-    @JsonProperty("accessCode")
-    public String getAccessCode() {
-        return accessCode;
     }
 
     @Override
