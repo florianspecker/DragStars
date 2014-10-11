@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -113,12 +114,12 @@ public class StatefulMemoryDataStore {
         speedControls.add(speedControl);
         LOGGER.info("Sending power value " + speedControl.getPower());
 
-        // TODO run remaining code on separate thread
         if (!speedControls.isEmpty()) {
             processSpeedControls();
         }
     }
 
+    @Async
     private void processSpeedControls() {
         while (!speedControls.isEmpty()) {
             speedControlDAO.insert(speedControls.remove());
@@ -128,18 +129,18 @@ public class StatefulMemoryDataStore {
     public void addSensorEvent(SensorEvent sensorEvent) {
         rawSensorEvents.add(sensorEvent);
 
-        // TODO run remaining code on separate thread
-        if (rawSensorEvents.size() > 10) {
-            LOGGER.info("got more than 10 raw sensorEvents, will process them now");
+        if (rawSensorEvents.size() > 12) {
+            LOGGER.info("got more than 12 raw sensorEvents, triggering async processing now");
             processRawSensorEvents();
         }
     }
 
+    @Async
     private void processRawSensorEvents() {
         while (rawSensorEvents.size() > 3) {
             SensorEvent sensorEvent = rawSensorEvents.remove();
             processedEvents.add(sensorEvent);
-            sensorEventDAO.insert(sensorEvent); // TODO batch?
+            sensorEventDAO.insert(sensorEvent);
         }
     }
 
