@@ -25,9 +25,11 @@ public class StatefulMemoryDataStore {
     private List<Double> powerIncrements = new ArrayList<>();
 
     public void addTimestamp(Long timestamp) {
-        timestamps.add(timestamp);
-        if (timestamps.size() == 2) {
-            calculatePowerIncrements(timestamps.get(1) - timestamps.get(0));
+        if (timestamps.size() == 0 || timestamp > timestamps.get(timestamps.size() - 1) + 1000) {
+            timestamps.add(timestamp);
+            if (timestamps.size() == 2) {
+                calculatePowerIncrements(timestamps.get(1) - timestamps.get(0));
+            }
         }
     }
 
