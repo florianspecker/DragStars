@@ -1,5 +1,7 @@
 package com.zuehlke.carrera.bot.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -63,6 +65,7 @@ public class SensorEvent implements Serializable {
      * Gets the X, Y, Z Acceleration
      * @return
      */
+    @JsonProperty("acc")
     public float[] getAcc(){
         return acc;
     }
@@ -71,6 +74,7 @@ public class SensorEvent implements Serializable {
      * Gets the X, Y, Z Gyro Data
      * @return
      */
+    @JsonProperty("gyr")
     public float[] getGyr(){
         return gyr;
     }
@@ -79,6 +83,7 @@ public class SensorEvent implements Serializable {
      * Gets the X, Y, Z Magnitude
      * @return
      */
+    @JsonProperty("mag")
     public float[] getMag(){
         return mag;
     }
@@ -87,6 +92,7 @@ public class SensorEvent implements Serializable {
      * Get the time-stamp when this event happened
      * @return
      */
+    @JsonProperty("timestamp")
     public long getTimeStamp() {
         return timeStamp;
     }
@@ -95,6 +101,7 @@ public class SensorEvent implements Serializable {
      * Get the event type
      * @return
      */
+    @JsonProperty("type")
     public SensorEventType getType() {
         return type;
     }

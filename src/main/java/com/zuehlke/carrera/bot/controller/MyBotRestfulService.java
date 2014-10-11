@@ -4,6 +4,8 @@ import com.zuehlke.carrera.bot.dao.SensorEventDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SensorEventType;
 import com.zuehlke.carrera.bot.service.MyBotService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +46,9 @@ public class MyBotRestfulService {
     @RequestMapping(value = "sensor", method = RequestMethod.POST, consumes = "application/json")
     @ResponseBody
     public void handleSensorEvent(@RequestBody SensorEvent data) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("Data:",data);
+        logger.info(data.toString());
         myBotService.handleSensorEvent(data);
     }
 
