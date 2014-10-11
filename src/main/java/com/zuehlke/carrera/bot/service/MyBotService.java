@@ -1,7 +1,10 @@
 package com.zuehlke.carrera.bot.service;
 
+import com.zuehlke.carrera.bot.dao.SensorEventDAO;
+import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SpeedControl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Client;
@@ -28,6 +31,8 @@ public class MyBotService {
 
     private final float MAX_Y_ACCELERATION = 40;
 
+    private SensorEventDAO sensorEventDAO;
+    private SpeedControlDAO speedControlDAO;
 
     /**
      * Creates a new MyBotService
@@ -35,6 +40,16 @@ public class MyBotService {
     public MyBotService() {
         client = ClientBuilder.newClient();
         relayRestApi = client.target(BASE_URL).path("/ws/rest");
+    }
+
+    @Autowired
+    public void setSensorEventDAO(SensorEventDAO sensorEventDAO) {
+        this.sensorEventDAO = sensorEventDAO;
+    }
+
+    @Autowired
+    public void setSpeedControlDAO(SpeedControlDAO speedControlDAO) {
+        this.speedControlDAO = speedControlDAO;
     }
 
 
@@ -52,6 +67,7 @@ public class MyBotService {
      * @param data
      */
     public void handleSensorEvent(SensorEvent data) {
+        sensorEventDAO.insert(data);
         switch (data.getType()) {
             case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
@@ -81,6 +97,7 @@ public class MyBotService {
      */
     public void sendSpeedControl(double power) {
         SpeedControl control = new SpeedControl(power, TEAM_ID, ACCESS_CODE, new Date().getTime());
+        speedControlDAO.insert(control);
         try {
             Response response = relayRestApi.path("relay/speed").request()
                     .post(Entity.entity(control, MediaType.APPLICATION_JSON));
