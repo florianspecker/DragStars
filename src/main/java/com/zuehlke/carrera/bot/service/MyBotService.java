@@ -1,18 +1,10 @@
 package com.zuehlke.carrera.bot.service;
 
-import com.zuehlke.carrera.bot.dao.SensorEventDAO;
-import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-
-import static com.zuehlke.carrera.bot.util.Constants.BASE_URL;
 
 /**
  * Contains the primary Bot AI.
@@ -22,43 +14,20 @@ import static com.zuehlke.carrera.bot.util.Constants.BASE_URL;
 public class MyBotService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
+    private static final double INITIAL_POWER = 100;
 
-    private final Client client;
-    private final WebTarget relayRestApi;
-
-    private final float MAX_Y_ACCELERATION = 40;
-
-    private SensorEventDAO sensorEventDAO;
-    private SpeedControlDAO speedControlDAO;
-
-    private double initial_power = 100;
-
-    /**
-     * Creates a new MyBotService
-     */
-    public MyBotService() {
-        client = ClientBuilder.newClient();
-        relayRestApi = client.target(BASE_URL).path("/ws/rest");
-    }
+    private StatefulMemoryDataStore statefulMemoryDataStore;
 
     @Autowired
-    public void setSensorEventDAO(SensorEventDAO sensorEventDAO) {
-        this.sensorEventDAO = sensorEventDAO;
-    }
-
-    @Autowired
-    public void setSpeedControlDAO(SpeedControlDAO speedControlDAO) {
-        this.speedControlDAO = speedControlDAO;
+    public void setStatefulMemoryDataStore(StatefulMemoryDataStore statefulMemoryDataStore) {
+        this.statefulMemoryDataStore = statefulMemoryDataStore;
     }
 
     private double setPower(Double power) {
         if (null == power) {
-
-            // TODO return stored value
-            return StatefulMemoryDataStore.getInstance().getCurrentPower();
+            return statefulMemoryDataStore.getCurrentPower();
         } else {
-            StatefulMemoryDataStore.getInstance().setCurrentPower(power);
-            // TODO store
+            statefulMemoryDataStore.setCurrentPower(power);
         }
         return power;
     }
@@ -67,8 +36,7 @@ public class MyBotService {
      * Occurs when a race starts.
      */
     public double start() {
-        // TODO Maybe send initial velocity here...
-        return setPower(initial_power);
+        return setPower(INITIAL_POWER);
     }
 
     /**
@@ -77,11 +45,11 @@ public class MyBotService {
      * @param data
      */
     public double handleSensorEvent(SensorEvent data) {
-        sensorEventDAO.insert(data);
+        statefulMemoryDataStore.addSensorEvent(data);
         switch (data.getType()) {
             case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
-                // TODO Handle Car sensor data more intelligently
+
                 /*if (StatefulMemoryDataStore.getInstance().getTimes().isEmpty()){
                     StatefulMemoryDataStore.getInstance().getTimes().add(data.getTimeStamp());
                 }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>2000){
@@ -93,8 +61,8 @@ public class MyBotService {
 
             case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
-                StatefulMemoryDataStore.getInstance().addTimestamp(data.getTimeStamp());
-                return setPower(initial_power + StatefulMemoryDataStore.getInstance().getCurrentPowerIncrement());
+                statefulMemoryDataStore.addTimestamp(data.getTimeStamp());
+                return setPower(INITIAL_POWER + statefulMemoryDataStore.getCurrentPowerIncrement());
         }
         return 0;
     }

@@ -37,6 +37,7 @@ public class MyBotRestfulService {
     @RequestMapping(value = "start", method = RequestMethod.POST)
     @ResponseBody
     public double start() {
+        LOGGER.info("Start command received");
         return myBotService.start();
     }
 

@@ -12,9 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.zuehlke.carrera.bot.util.Constants.ACCESS_CODE;
-import static com.zuehlke.carrera.bot.util.Constants.TEAM_ID;
-
 /**
  * Created on 11/10/14.
  * <p/>
@@ -73,7 +70,7 @@ public class SpeedControlDAOImpl implements SpeedControlDAO {
             SpeedControl speedControl = null;
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                speedControl = new SpeedControl(rs.getDouble(2), TEAM_ID, ACCESS_CODE, rs.getLong(1));
+                speedControl = new SpeedControl(rs.getDouble(2), rs.getLong(1));
             }
             rs.close();
             ps.close();

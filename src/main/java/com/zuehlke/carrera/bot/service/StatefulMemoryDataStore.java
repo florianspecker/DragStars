@@ -1,7 +1,20 @@
 package com.zuehlke.carrera.bot.service;
 
+import com.zuehlke.carrera.bot.dao.SensorEventDAO;
+import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
+import com.zuehlke.carrera.bot.model.SensorEvent;
+import com.zuehlke.carrera.bot.model.SpeedControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created on 11/10/14.
@@ -10,24 +23,24 @@ import java.util.List;
  *
  * @author Florian Specker
  */
+@Service
+@Scope(value = "singleton")
 public class StatefulMemoryDataStore {
 
-    private static StatefulMemoryDataStore instance;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatefulMemoryDataStore.class);
 
-    public synchronized static StatefulMemoryDataStore getInstance() {
-        if (null == instance) {
-            instance = new StatefulMemoryDataStore();
-        }
-        return instance;
-    }
+    private SensorEventDAO sensorEventDAO;
+    private SpeedControlDAO speedControlDAO;
 
     private double currentPower;
 
     public double getCurrentPower() {
+        addSpeedControl(new SpeedControl(currentPower, System.currentTimeMillis()));
         return currentPower;
     }
 
     public void setCurrentPower(double currentPower) {
+        addSpeedControl(new SpeedControl(currentPower, System.currentTimeMillis()));
         this.currentPower = currentPower;
     }
 
@@ -35,6 +48,18 @@ public class StatefulMemoryDataStore {
     private List<Double> powerIncrements = new ArrayList<>();
 
     private List<Long> times = new ArrayList<Long>();
+
+
+    @Autowired
+    public void setSensorEventDAO(SensorEventDAO sensorEventDAO) {
+        this.sensorEventDAO = sensorEventDAO;
+    }
+
+    @Autowired
+    public void setSpeedControlDAO(SpeedControlDAO speedControlDAO) {
+        this.speedControlDAO = speedControlDAO;
+    }
+
 
     public void addTimestamp(Long timestamp) {
         if (timestamps.size() == 0 || timestamp > timestamps.get(timestamps.size() - 1) + 1000) {
@@ -75,5 +100,48 @@ public class StatefulMemoryDataStore {
     public List<Long> getTimes() {
         return times;
     }
+
+
+    /**
+     * ** in-memory data store / async data inserter ****
+     */
+    private Queue<SensorEvent> rawSensorEvents = new ConcurrentLinkedQueue<SensorEvent>();
+    private List<SensorEvent> processedEvents = Collections.synchronizedList(new ArrayList<SensorEvent>());
+    private Queue<SpeedControl> speedControls = new ConcurrentLinkedQueue<SpeedControl>();
+
+    private void addSpeedControl(SpeedControl speedControl) {
+        speedControls.add(speedControl);
+        LOGGER.info("Sending power value " + speedControl.getPower());
+
+        // TODO run remaining code on separate thread
+        if (!speedControls.isEmpty()) {
+            processSpeedControls();
+        }
+    }
+
+    private void processSpeedControls() {
+        while (!speedControls.isEmpty()) {
+            speedControlDAO.insert(speedControls.remove());
+        }
+    }
+
+    public void addSensorEvent(SensorEvent sensorEvent) {
+        rawSensorEvents.add(sensorEvent);
+
+        // TODO run remaining code on separate thread
+        if (rawSensorEvents.size() > 10) {
+            LOGGER.info("got more than 10 raw sensorEvents, will process them now");
+            processRawSensorEvents();
+        }
+    }
+
+    private void processRawSensorEvents() {
+        while (rawSensorEvents.size() > 3) {
+            SensorEvent sensorEvent = rawSensorEvents.remove();
+            processedEvents.add(sensorEvent);
+            sensorEventDAO.insert(sensorEvent); // TODO batch?
+        }
+    }
+
 
 }

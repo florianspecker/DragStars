@@ -1,6 +1,7 @@
 package com.zuehlke.carrera.bot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.zuehlke.carrera.bot.util.Constants;
 
 import java.io.Serializable;
 
@@ -27,15 +28,13 @@ public class SpeedControl implements Serializable {
     /**
      * Creates a new SpeedControl with the given power
      *
-     * @param power      Power value in range [0-250]
-     * @param teamId
-     * @param accessCode
+     * @param power Power value in range [0-250]
      */
-    public SpeedControl(double power, String teamId, String accessCode, long timestamp) {
+    public SpeedControl(double power, long timestamp) {
 
         this.power = power;
-        this.accessCode = accessCode;
-        this.teamId = teamId;
+        this.accessCode = Constants.ACCESS_CODE;
+        this.teamId = Constants.TEAM_ID;
         this.timeStamp = timestamp;
     }
 
