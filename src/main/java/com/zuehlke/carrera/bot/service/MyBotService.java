@@ -16,12 +16,9 @@ import java.util.List;
 public class MyBotService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
-    private static final double INITIAL_POWER = 100;
+    private static final double INITIAL_POWER = 250;
 
     private StatefulMemoryDataStore statefulMemoryDataStore;
-
-    private List<List<SensorEvent>> gyro_list;
-    private List<List<SensorEvent>> binary_list;
 
     @Autowired
     public void setStatefulMemoryDataStore(StatefulMemoryDataStore statefulMemoryDataStore) {
@@ -55,55 +52,25 @@ public class MyBotService {
      */
     public double handleSensorEvent(SensorEvent data) {
         statefulMemoryDataStore.addSensorEvent(data);
-        switch (data.getType()) {
-            case CAR_SENSOR_DATA:
+//        switch (data.getType()) {
+//            case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
-                /*if (StatefulMemoryDataStore.getInstance().getTimes().isEmpty()){
-                    StatefulMemoryDataStore.getInstance().getTimes().add(data.getTimeStamp());
-                }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>2000){
-                    sendSpeedControl(120);
-                }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>4000){
-                    sendSpeedControl(0);
-                }*/
-                /*int old_count = 0;
-                if (statefulMemoryDataStore.getRoundPassedEvents().size() > 3 && data.getType().equals(SensorEventType.ROUND_PASSED)) {
-                    for (int i = 0,z=0; i<statefulMemoryDataStore.getProcessedEvents().size(); i++) {
-                        if(statefulMemoryDataStore.getProcessedEvents().get(i).equals(SensorEventType.ROUND_PASSED)&&z>1){
-                            gyro_list.add(statefulMemoryDataStore.getProcessedEvents().subList(old_count,i-1));
-                            old_count = i;
-                        }else if (z==1){
-                            old_count = i;
-                            z++;
-                        }else if(statefulMemoryDataStore.getProcessedEvents().get(i).equals(SensorEventType.ROUND_PASSED)){
-                            z++;
-                        }
-                    }
+                if (statefulMemoryDataStore.getTimes().isEmpty()) {
+                    statefulMemoryDataStore.getTimes().add(System.currentTimeMillis());
+                } else if (System.currentTimeMillis() - statefulMemoryDataStore.getTimes().get(0) > 440) {
+                    return setPower(150d);
+                } else if (System.currentTimeMillis() - statefulMemoryDataStore.getTimes().get(0) > 400) {
+                    return setPower(50d);
                 }
-                calculateBinaries(gyro_list);*/
                 return setPower(null);
 
-            case ROUND_PASSED:
+//            case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
-                statefulMemoryDataStore.addTimestamp(data.getTimeStamp());
-                return setPower(INITIAL_POWER + statefulMemoryDataStore.getCurrentPowerIncrement());
-        }
-        return 0;
+//                statefulMemoryDataStore.addTimestamp(data.getTimeStamp());
+//                return setPower(INITIAL_POWER + statefulMemoryDataStore.getCurrentPowerIncrement());
+//        }
+        //return 0;
     }
 
-    /*private List<List<SensorEvent>> calculateBinaries(List<List<SensorEvent>> list) {
-        int i = 0;
-        while(list.listIterator().hasNext()){
-            Iterator it = list.get(i).listIterator();
-            while(it.hasNext()){
-                SensorEvent test = (SensorEvent) it.next();
-                float[] gyro_types = test.getGyr();
-                float gyro_z = gyro_types[2];
-
-            }
-            i++;
-        }
-
-        return null;
-    }*/
 
 }
