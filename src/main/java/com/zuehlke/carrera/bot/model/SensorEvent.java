@@ -29,6 +29,7 @@ public class SensorEvent implements Serializable {
     private float[] acc;
     private float[] gyr;
     private float[] mag;
+    private long timeStampReceived;
 
     /**
      * Empty constructor for serialisation
@@ -106,6 +107,13 @@ public class SensorEvent implements Serializable {
         return type;
     }
 
+    public long getTimeStampReceived() {
+        return timeStampReceived;
+    }
+
+    public void setTimeStampReceived(long timeStampReceived) {
+        this.timeStampReceived = timeStampReceived;
+    }
 
     @Override
     public String toString() {
