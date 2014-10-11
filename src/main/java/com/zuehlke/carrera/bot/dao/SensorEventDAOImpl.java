@@ -37,8 +37,8 @@ public class SensorEventDAOImpl implements SensorEventDAO {
     public void insert(SensorEvent sensorEvent) {
 
         String sql = "INSERT INTO sensor_events (type, timestamp_sent, timestamp_received, " +
-                "acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z, " +
-                "mag_x, mag_y, mag_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
 
         try {
@@ -53,9 +53,6 @@ public class SensorEventDAOImpl implements SensorEventDAO {
             ps.setFloat(7, sensorEvent.getGyr()[0]);
             ps.setFloat(8, sensorEvent.getGyr()[1]);
             ps.setFloat(9, sensorEvent.getGyr()[2]);
-            ps.setFloat(10, sensorEvent.getMag()[0]);
-            ps.setFloat(11, sensorEvent.getMag()[1]);
-            ps.setFloat(12, sensorEvent.getMag()[2]);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
