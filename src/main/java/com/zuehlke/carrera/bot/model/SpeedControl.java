@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * A SpeedControl contains the power value which controls the
  * velocity of a relay-car.
- *
+ * <p/>
  * Created by wgiersche on 06/09/14.
  */
 public class SpeedControl implements Serializable {
@@ -20,18 +20,18 @@ public class SpeedControl implements Serializable {
     /**
      * Empty Constructor for Serialisation
      */
-    protected SpeedControl () {
+    protected SpeedControl() {
     }
 
 
     /**
      * Creates a new SpeedControl with the given power
      *
-     * @param power Power value in range [0-250]
+     * @param power      Power value in range [0-250]
      * @param teamId
      * @param accessCode
      */
-    public SpeedControl ( double power, String teamId, String accessCode, long timestamp ) {
+    public SpeedControl(double power, String teamId, String accessCode, long timestamp) {
 
         this.power = power;
         this.accessCode = accessCode;
@@ -41,6 +41,7 @@ public class SpeedControl implements Serializable {
 
     /**
      * Get the power
+     *
      * @return
      */
     @JsonProperty("power")
@@ -58,7 +59,7 @@ public class SpeedControl implements Serializable {
         return accessCode;
     }
 
-    public String toString(){
+    public String toString() {
         return getPower() + "";
     }
 
@@ -66,4 +67,5 @@ public class SpeedControl implements Serializable {
     public long getTimeStamp() {
         return timeStamp;
     }
+
 }
