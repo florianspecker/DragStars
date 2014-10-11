@@ -92,7 +92,7 @@ public class SensorEvent implements Serializable {
      * Get the time-stamp when this event happened
      * @return
      */
-    @JsonProperty("timestamp")
+    @JsonProperty("timeStamp")
     public long getTimeStamp() {
         return timeStamp;
     }
