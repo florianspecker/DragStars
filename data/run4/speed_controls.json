@@ -1,0 +1,9 @@
+/**
+ Export to JSON plugin for PHPMyAdmin
+ @version 0.1
+ */
+
+// Database 'cf_20a714ef_27d7_42e8_a143_bdb9f4c4d4ec'
+// cf_20a714ef_27d7_42e8_a143_bdb9f4c4d4ec.speed_controls
+
+[{"id":"1","timestamp_sent":"1413024272521","timestamp_received":null,"power":"100"}, {"id":"2","timestamp_sent":"1413024300233","timestamp_received":null,"power":"105"}, {"id":"3","timestamp_sent":"1413024328966","timestamp_received":null,"power":"110"}, {"id":"4","timestamp_sent":"1413024332629","timestamp_received":null,"power":"110"}, {"id":"5","timestamp_sent":"1413024364570","timestamp_received":null,"power":"115"}, {"id":"6","timestamp_sent":"1413024409272","timestamp_received":null,"power":"120"}, {"id":"7","timestamp_sent":"1413024409911","timestamp_received":null,"power":"120"}, {"id":"8","timestamp_sent":"1413024455623","timestamp_received":null,"power":"125"}]
