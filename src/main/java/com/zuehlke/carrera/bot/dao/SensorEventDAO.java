@@ -2,6 +2,8 @@ package com.zuehlke.carrera.bot.dao;
 
 import com.zuehlke.carrera.bot.model.SensorEvent;
 
+import java.util.List;
+
 /**
  * Created on 11/10/14.
  * <p/>
@@ -15,4 +17,5 @@ public interface SensorEventDAO {
 
     public SensorEvent findById(int id);
 
+    public List<Long> findByTimeRange();
 }

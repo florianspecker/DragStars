@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 11/10/14.
@@ -104,6 +106,37 @@ public class SensorEventDAOImpl implements SensorEventDAO {
             return sensorEvent;
         } catch (SQLException e) {
             LOGGER.error("Error reading SensorEvent with id " + id + ": " + e.toString() + "; " + e.getMessage());
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ignored) {
+                }
+            }
+        }
+    }
+
+    public List<Long> findByTimeRange(){
+        String sql = "SELECT timestamp_sent " +
+                "FROM sensor_events WHERE type = 1" +
+                "ORDER BY timestamp_sent ASC ";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            List<Long> timestamps  = new ArrayList<Long>();
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                    // ROUND_PASSED
+                timestamps.add(rs.getLong(1));
+            }
+            rs.close();
+            ps.close();
+            return timestamps;
+        } catch (SQLException e) {
+            LOGGER.error("Error reading SensorEvent with type 1 " + e.toString() + "; " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             if (conn != null) {

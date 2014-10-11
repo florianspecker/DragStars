@@ -14,10 +14,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
+import java.util.List;
 
-import static com.zuehlke.carrera.bot.util.Constants.ACCESS_CODE;
-import static com.zuehlke.carrera.bot.util.Constants.BASE_URL;
-import static com.zuehlke.carrera.bot.util.Constants.TEAM_ID;
+import static com.zuehlke.carrera.bot.util.Constants.*;
 
 /**
  * Contains the primary Bot AI.
@@ -33,6 +32,11 @@ public class MyBotService {
 
     private SensorEventDAO sensorEventDAO;
     private SpeedControlDAO speedControlDAO;
+
+    private double initial_power = 60;
+    private double add_power;
+    private List<Long> list_of_timestamps;
+    private long lap_time;
 
     /**
      * Creates a new MyBotService
@@ -58,7 +62,7 @@ public class MyBotService {
      */
     public void start() {
         // TODO Maybe send initial velocity here...
-        sendSpeedControl(50);
+        sendSpeedControl(initial_power);
     }
 
     /**
@@ -73,19 +77,29 @@ public class MyBotService {
                 // Sensor data from the mounted car sensor
                 // TODO Handle Car sensor data more intelligently
 
-                // Simple, synchronous Bot implementation
-                if (data.getAcc()[1] > MAX_Y_ACCELERATION) {
-                    // Too High Y_ACCELERATION, reduce velocity
-                    sendSpeedControl(45);
-                } else {
-                    // Y_ACCELERATION is ok, lets drive faster
-                    sendSpeedControl(85);
-                }
                 break;
 
             case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
-                // TODO Handle round passed event...
+                list_of_timestamps = sensorEventDAO.findByTimeRange();
+                if(list_of_timestamps.size()>1){
+                    lap_time = list_of_timestamps.get(list_of_timestamps.size()-1)-
+                            list_of_timestamps.get(list_of_timestamps.size()-2);
+                    int k = 0;
+                    long total_time = 0;
+                    for(int i=0;i<20;i++){
+                        for(int z = 0;z<i;z++){
+                            total_time = lap_time * 50 * i/(50*i+z*(180-50));
+                        }
+                        if(total_time>180){
+                            k = i;
+                            break;
+                        }
+                    }
+                    k = k-1;
+                    add_power = (180 - 50) / k;
+                    sendSpeedControl(initial_power + add_power);
+                }
                 break;
         }
     }
