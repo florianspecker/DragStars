@@ -24,6 +24,8 @@ public class StatefulMemoryDataStore {
     private List<Long> timestamps = new ArrayList<>();
     private List<Double> powerIncrements = new ArrayList<>();
 
+    private List<Long> times = new ArrayList<Long>();
+
     public void addTimestamp(Long timestamp) {
         if (timestamps.size() == 0 || timestamp > timestamps.get(timestamps.size() - 1) + 1000) {
             timestamps.add(timestamp);
@@ -58,6 +60,10 @@ public class StatefulMemoryDataStore {
             duration += timeLapseOne * 100 * n / (100 * n + i * (250 - 100));
         }
         return duration;
+    }
+
+    public List<Long> getTimes() {
+        return times;
     }
 
 }
