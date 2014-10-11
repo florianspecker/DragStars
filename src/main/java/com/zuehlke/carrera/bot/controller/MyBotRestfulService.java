@@ -1,6 +1,5 @@
 package com.zuehlke.carrera.bot.controller;
 
-import com.zuehlke.carrera.bot.dao.SensorEventDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.service.MyBotService;
 import org.slf4j.Logger;
@@ -23,12 +22,10 @@ public class MyBotRestfulService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotRestfulService.class);
 
     private final MyBotService myBotService;
-    private final SensorEventDAO sensorEventDAO;
 
     @Autowired
-    public MyBotRestfulService(MyBotService myBotService, SensorEventDAO sensorEventDAO) {
+    public MyBotRestfulService(MyBotService myBotService) {
         this.myBotService = myBotService;
-        this.sensorEventDAO = sensorEventDAO;
     }
 
     @RequestMapping(value = "ping", method = RequestMethod.GET, produces = "text/plain")
@@ -47,17 +44,9 @@ public class MyBotRestfulService {
     @ResponseBody
     public void handleSensorEvent(@RequestBody SensorEvent data) {
         long timeStampReceived = System.currentTimeMillis();
-        LOGGER.info("Data received for handleSensorEvent(): " + data.toString());
         data.setTimeStampReceived(timeStampReceived);
         myBotService.handleSensorEvent(data);
-    }
-
-    @RequestMapping(value = "test", method = RequestMethod.GET)
-    @ResponseBody
-    public SensorEvent test() {
-        SensorEvent sensorEvent = new SensorEvent(new float[]{1.1f, 2.2f, 3.3f}, new float[]{1.1f, 2.2f, 3.3f}, new float[]{1.1f, 2.2f, 3.3f}, System.currentTimeMillis());
-        sensorEventDAO.insert(sensorEvent);
-        return sensorEvent;
+        LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data.toString());
     }
 
 }
