@@ -90,5 +90,4 @@ public class SpeedControlDAOImpl implements SpeedControlDAO {
             }
         }
     }
-
 }
