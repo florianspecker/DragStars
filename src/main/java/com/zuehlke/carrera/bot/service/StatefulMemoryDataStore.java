@@ -45,7 +45,7 @@ public class StatefulMemoryDataStore {
 
     private void calculatePowerIncrements(long timeLapseOne) {
         int n = 1;
-        while (sumDuration(timeLapseOne, n) < 180000) {
+        while (sumDuration(timeLapseOne, n) < 60000) {
             n++;
         }
         double deltaPower = (250 - 100) / (n - 1);
