@@ -11,6 +11,6 @@ public class Constants {
 
     public static final String BASE_URL = "http://relay2.beta.swisscloud.io";
     public static final String TEAM_ID = "DragStars";
-    public static final String ACCESS_CODE = "1337toor";    // TODO Put here your team access code
+    public static final String ACCESS_CODE = "drag1234";
 
 }
