@@ -1,10 +1,8 @@
 package com.zuehlke.carrera.bot.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zuehlke.carrera.bot.dao.SensorEventDAO;
 import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
-import com.zuehlke.carrera.bot.model.SpeedControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayOutputStream;
-import java.util.Date;
 
-import static com.zuehlke.carrera.bot.util.Constants.*;
+import static com.zuehlke.carrera.bot.util.Constants.BASE_URL;
 
 /**
  * Contains the primary Bot AI.
@@ -59,13 +51,24 @@ public class MyBotService {
         this.speedControlDAO = speedControlDAO;
     }
 
+    private double setPower(Double power) {
+        if (null == power) {
+
+            // TODO return stored value
+            return StatefulMemoryDataStore.getInstance().getCurrentPower();
+        } else {
+            StatefulMemoryDataStore.getInstance().setCurrentPower(power);
+            // TODO store
+        }
+        return power;
+    }
 
     /**
      * Occurs when a race starts.
      */
-    public void start() {
+    public double start() {
         // TODO Maybe send initial velocity here...
-        sendSpeedControl(initial_power);
+        return setPower(initial_power);
     }
 
     /**
@@ -73,7 +76,7 @@ public class MyBotService {
      *
      * @param data
      */
-    public void handleSensorEvent(SensorEvent data) {
+    public double handleSensorEvent(SensorEvent data) {
         sensorEventDAO.insert(data);
         switch (data.getType()) {
             case CAR_SENSOR_DATA:
@@ -86,45 +89,14 @@ public class MyBotService {
                 }else if(data.getTimeStamp()-StatefulMemoryDataStore.getInstance().getTimes().get(0)>4000){
                     sendSpeedControl(0);
                 }*/
-                break;
+                return setPower(null);
 
             case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
                 StatefulMemoryDataStore.getInstance().addTimestamp(data.getTimeStamp());
-                sendSpeedControl(initial_power + StatefulMemoryDataStore.getInstance().getCurrentPowerIncrement());
-                break;
+                return setPower(initial_power + StatefulMemoryDataStore.getInstance().getCurrentPowerIncrement());
         }
+        return 0;
     }
-
-    /**
-     * Sends the given power to the race-track using the rest API
-     *
-     * @param power Power value in the range of [0 - 250]
-     */
-    public void sendSpeedControl(double power) {
-        SpeedControl control = new SpeedControl(power, TEAM_ID, ACCESS_CODE, new Date().getTime());
-        LOGGER.info("Sending SpeedControl Data: " + control.toString());
-        speedControlDAO.insert(control);
-        try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(os, control);
-
-            Response response = relayRestApi.path("relay/speed").request()
-                    .post(Entity.entity(new String(os.toByteArray()), MediaType.APPLICATION_JSON));
-
-            int status = response.getStatus();
-            MultivaluedMap<String, String> headers = response.getStringHeaders();
-            StringBuilder sb = new StringBuilder();
-            for (String key : headers.keySet()) {
-                sb.append(key).append('=').append(headers.getFirst(key)).append("; ");
-            }
-            LOGGER.info("After sending SpeedControl: Got status " + status + "; headers: " + sb.toString());
-        } catch (Exception e) {
-            LOGGER.error("Error trying to send SpeedControl: " + e.getClass() + ", " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
 
 }

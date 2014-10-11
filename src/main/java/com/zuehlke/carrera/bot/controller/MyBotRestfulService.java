@@ -36,17 +36,18 @@ public class MyBotRestfulService {
 
     @RequestMapping(value = "start", method = RequestMethod.POST)
     @ResponseBody
-    public void start() {
-        myBotService.start();
+    public double start() {
+        return myBotService.start();
     }
 
     @RequestMapping(value = "sensor", method = RequestMethod.POST, consumes = "application/json")
     @ResponseBody
-    public void handleSensorEvent(@RequestBody SensorEvent data) {
+    public double handleSensorEvent(@RequestBody SensorEvent data) {
         long timeStampReceived = System.currentTimeMillis();
         data.setTimeStampReceived(timeStampReceived);
-        myBotService.handleSensorEvent(data);
+        double power = myBotService.handleSensorEvent(data);
         LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data.toString());
+        return power;
     }
 
 }

@@ -21,6 +21,16 @@ public class StatefulMemoryDataStore {
         return instance;
     }
 
+    private double currentPower;
+
+    public double getCurrentPower() {
+        return currentPower;
+    }
+
+    public void setCurrentPower(double currentPower) {
+        this.currentPower = currentPower;
+    }
+
     private List<Long> timestamps = new ArrayList<>();
     private List<Double> powerIncrements = new ArrayList<>();
 
