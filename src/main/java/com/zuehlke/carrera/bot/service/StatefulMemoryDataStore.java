@@ -44,8 +44,8 @@ public class StatefulMemoryDataStore {
         while (sumDuration(timeLapseOne, n) < 180000) {
             n++;
         }
-        double deltaPower = (250 - 100) / n;
-        for (int i = 1; i < n + 5; i++) {
+        double deltaPower = (250 - 100) / (n - 1);
+        for (int i = 1; i <= n; i++) {
             powerIncrements.add(i * deltaPower);
         }
     }
