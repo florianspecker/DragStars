@@ -1,9 +1,12 @@
 package com.zuehlke.carrera.bot.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zuehlke.carrera.bot.dao.SensorEventDAO;
 import com.zuehlke.carrera.bot.dao.SpeedControlDAO;
 import com.zuehlke.carrera.bot.model.SensorEvent;
 import com.zuehlke.carrera.bot.model.SpeedControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +15,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
 import java.util.Date;
 
 import static com.zuehlke.carrera.bot.util.Constants.ACCESS_CODE;
@@ -25,6 +30,8 @@ import static com.zuehlke.carrera.bot.util.Constants.TEAM_ID;
  */
 @Service
 public class MyBotService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
 
     private final Client client;
     private final WebTarget relayRestApi;
@@ -99,10 +106,23 @@ public class MyBotService {
         SpeedControl control = new SpeedControl(power, TEAM_ID, ACCESS_CODE, new Date().getTime());
         speedControlDAO.insert(control);
         try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(os, control);
+
             Response response = relayRestApi.path("relay/speed").request()
-                    .post(Entity.entity(control, MediaType.APPLICATION_JSON));
+                    .post(Entity.entity(new String(os.toByteArray()), MediaType.APPLICATION_JSON));
+
+            int status = response.getStatus();
+            MultivaluedMap<String, String> headers = response.getStringHeaders();
+            StringBuilder sb = new StringBuilder();
+            for (String key : headers.keySet()) {
+                sb.append(key).append('=').append(headers.getFirst(key)).append("; ");
+            }
+            LOGGER.info("After sending SpeedControl: Got status " + status + "; headers: " + sb.toString());
         } catch (Exception e) {
-            e.printStackTrace(); // TODO better error handling
+            LOGGER.error("Error trying to send SpeedControl: " + e.getClass() + ", " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
