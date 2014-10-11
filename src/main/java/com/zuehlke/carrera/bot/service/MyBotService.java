@@ -21,7 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.Date;
 import java.util.List;
 
-import static com.zuehlke.carrera.bot.util.Constants.*;
+import static com.zuehlke.carrera.bot.util.Constants.ACCESS_CODE;
+import static com.zuehlke.carrera.bot.util.Constants.BASE_URL;
+import static com.zuehlke.carrera.bot.util.Constants.TEAM_ID;
 
 /**
  * Contains the primary Bot AI.
@@ -40,10 +42,7 @@ public class MyBotService {
     private SensorEventDAO sensorEventDAO;
     private SpeedControlDAO speedControlDAO;
 
-    private double initial_power = 60;
-    private double add_power;
-    private List<Long> list_of_timestamps;
-    private long lap_time;
+    private double initial_power = 100;
 
     /**
      * Creates a new MyBotService
@@ -88,25 +87,8 @@ public class MyBotService {
 
             case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
-                list_of_timestamps = sensorEventDAO.findByTimeRange();
-                if(list_of_timestamps.size()>1){
-                    lap_time = list_of_timestamps.get(list_of_timestamps.size()-1)-
-                            list_of_timestamps.get(list_of_timestamps.size()-2);
-                    int k = 0;
-                    long total_time = 0;
-                    for(int i=0;i<20;i++){
-                        for(int z = 0;z<i;z++){
-                            total_time = lap_time * 50 * i/(50*i+z*(180-50));
-                        }
-                        if(total_time>180){
-                            k = i;
-                            break;
-                        }
-                    }
-                    k = k-1;
-                    add_power = (180 - 50) / k;
-                    sendSpeedControl(initial_power + add_power);
-                }
+                StatefulMemoryDataStore.getInstance().addTimestamp(data.getTimeStamp());
+                sendSpeedControl(initial_power + StatefulMemoryDataStore.getInstance().getCurrentPowerIncrement());
                 break;
         }
     }
