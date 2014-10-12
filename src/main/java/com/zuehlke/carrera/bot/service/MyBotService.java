@@ -77,6 +77,14 @@ public class MyBotService {
                 }
 
                 if (null != statefulMemoryDataStore.getTimer() && System.currentTimeMillis() > statefulMemoryDataStore.getTimer()) {
+                    if (statefulMemoryDataStore.getPosition() == 1) {
+                        statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 20);
+                        return setPower(0d);
+                    }
+                    if (statefulMemoryDataStore.getPosition() == 3) {
+                        statefulMemoryDataStore.setPosition(4);
+                        return setPower(185d);
+                    }
                     statefulMemoryDataStore.setTimer(null);
                     return setPower(151d);
                 }
@@ -100,13 +108,13 @@ public class MyBotService {
 
                 if (statefulMemoryDataStore.getPosition() == 3 && last.getAcc()[1] < -150 && data.getAcc()[1] > 0) {
                     statefulMemoryDataStore.setPosition(4);
-                    return setPower(180d);
+                    return setPower(186d);
                 }
 
                 if (statefulMemoryDataStore.getPosition() == 4 && last2.getAcc()[1] >= 80 && data.getAcc()[1] <= 50) {
                     statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 300);
                     statefulMemoryDataStore.setPosition(5);
-                    return setPower(300d);
+                    return setPower(255d);
                 }
 
                 return setPower(null);

@@ -111,6 +111,7 @@ public class StatefulMemoryDataStore {
     }
 
     public void setPosition(int position) {
+        LOGGER.info("Position " + position);
         this.position = position;
     }
 

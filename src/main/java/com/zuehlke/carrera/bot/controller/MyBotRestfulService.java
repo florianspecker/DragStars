@@ -49,7 +49,7 @@ public class MyBotRestfulService {
         long timeStampReceived = System.currentTimeMillis();
         data.setTimeStampReceived(timeStampReceived);
         double power = myBotService.handleSensorEvent(data);
-        LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data.toString());
+      //  LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data.toString());
         return power;
     }
 
