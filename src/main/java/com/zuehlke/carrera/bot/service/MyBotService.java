@@ -17,7 +17,7 @@ import java.util.List;
 public class MyBotService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
-    private static final double INITIAL_POWER = 160;
+    private static final double INITIAL_POWER = 150;
 
     private StatefulMemoryDataStore statefulMemoryDataStore;
 
@@ -39,6 +39,7 @@ public class MyBotService {
      * Occurs when a race starts.
      */
     public double start() {
+        statefulMemoryDataStore.setPosition(-1);
         return setPower(INITIAL_POWER);
     }
 
@@ -65,37 +66,46 @@ public class MyBotService {
                 if (SensorEventType.ROUND_PASSED.equals(last.getType())) {
                     last = pastEvents.get(pastEvents.size() - 2);
                 }
+                SensorEvent last2 = pastEvents.get(pastEvents.size() - 2);
+                if (SensorEventType.ROUND_PASSED.equals(last2.getType())) {
+                    last2 = pastEvents.get(pastEvents.size() - 3);
+                }
 
-                if (statefulMemoryDataStore.getCurrentPower() == 180d + statefulMemoryDataStore.getLapCounter() && !statefulMemoryDataStore.getTimes().isEmpty()
-                        && System.currentTimeMillis() > statefulMemoryDataStore.getTimes().get(0) + 150) {
-                    return setPower(180d);
-                }
-                if (statefulMemoryDataStore.getCurrentPower() == 0) {
-                    return setPower(1d);
-                }
-                if (statefulMemoryDataStore.getCurrentPower() == 1) {
+                if (null != statefulMemoryDataStore.getTimer() && System.currentTimeMillis() > statefulMemoryDataStore.getTimer()) {
+                    statefulMemoryDataStore.setTimer(null);
                     return setPower(150d);
                 }
-                float gyrZDiff = data.getGyr()[2] - last.getGyr()[2];
-                if (gyrZDiff < -5) {
-                    // curve ahead!
-                    if (statefulMemoryDataStore.getCurrentPower() >= 180) {
-                        return setPower(0d);
-                    }
+
+                if (last2.getAcc()[1] > 200 && data.getAcc()[1] <= 50) {
+                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 200);
+                    statefulMemoryDataStore.setPosition(1);
+                    return setPower(250d);
+                }
+
+                if (statefulMemoryDataStore.getPosition() == 1 && last.getAcc()[1] >= 100 && data.getAcc()[1] < 50) {
+                    statefulMemoryDataStore.setPosition(2);
+                    return setPower(160d);
+                }
+
+                if (statefulMemoryDataStore.getPosition() == 2 && last.getAcc()[1] >= 100 && data.getAcc()[1] < 50) {
+                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 20);
+                    statefulMemoryDataStore.setPosition(3);
                     return setPower(150d);
                 }
-                if (gyrZDiff > 0 && gyrZDiff < 1 && data.getGyr()[2] > 500) {
-                    // straight ahead!
-                    statefulMemoryDataStore.getTimes().add(System.currentTimeMillis());
-                    return setPower(180d + statefulMemoryDataStore.getLapCounter());
+
+                if (statefulMemoryDataStore.getPosition() == 3 && last.getAcc()[1] < -150 && data.getAcc()[1] > 0) {
+                    statefulMemoryDataStore.setPosition(4);
+                    return setPower(170d);
+                }
+
+                if (statefulMemoryDataStore.getPosition() == 4 && last2.getAcc()[1] >= 80 && data.getAcc()[1] < 35) {
+                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 300);
+                    statefulMemoryDataStore.setPosition(5);
+                    return setPower(250d);
                 }
 
                 return setPower(null);
             case ROUND_PASSED:
-                statefulMemoryDataStore.incrementLapCounter();
-                if (statefulMemoryDataStore.getCurrentPower() == 180d - 5 + statefulMemoryDataStore.getLapCounter()) {
-                    return setPower(statefulMemoryDataStore.getCurrentPower() + 5);
-                }
                 // A round has been passed - generated event from the light barrier
                 return setPower(null);
         }
