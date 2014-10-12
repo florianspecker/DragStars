@@ -93,7 +93,7 @@ public class StatefulMemoryDataStore {
     /**
      * ** in-memory data store / async data inserter ****
      */
-    private List<SensorEvent> sensorEvents = new ArrayList<SensorEvent>();
+    private List<SensorEvent> sensorEvents = new ArrayList<SensorEvent>(6000);
     private List<SensorEvent> roundPassedEvents = new ArrayList<SensorEvent>();
     private List<Integer> roundPassedEventsIndexes = new ArrayList<>();
 
