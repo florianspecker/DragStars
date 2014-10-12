@@ -17,7 +17,7 @@ import java.util.List;
 public class MyBotService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
-    private static final double INITIAL_POWER = 150;
+    private static final double INITIAL_POWER = 149;
 
     private StatefulMemoryDataStore statefulMemoryDataStore;
 
@@ -27,6 +27,7 @@ public class MyBotService {
     }
 
     private double setPower(Double power) {
+        LOGGER.info("Setting power to " + power);
         if (null == power) {
             return statefulMemoryDataStore.getCurrentPower();
         } else {
@@ -77,7 +78,7 @@ public class MyBotService {
 
                 if (null != statefulMemoryDataStore.getTimer() && System.currentTimeMillis() > statefulMemoryDataStore.getTimer()) {
                     statefulMemoryDataStore.setTimer(null);
-                    return setPower(150d);
+                    return setPower(151d);
                 }
 
                 if (last4.getAcc()[1] > 200 && data.getAcc()[1] <= 50) {
@@ -110,6 +111,11 @@ public class MyBotService {
 
                 return setPower(null);
             case ROUND_PASSED:
+                if (statefulMemoryDataStore.getPosition() != 1) {
+                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 150);
+                    statefulMemoryDataStore.setPosition(1);
+                    return setPower(200d);
+                }
                 // A round has been passed - generated event from the light barrier
                 return setPower(null);
         }
