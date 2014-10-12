@@ -59,7 +59,7 @@ public class MyBotService {
             case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
                 List<SensorEvent> pastEvents = statefulMemoryDataStore.getSensorEvents();
-                if (pastEvents.size() < 2) {
+                if (pastEvents.size() < 10) {
                     return setPower(null);
                 }
 
@@ -77,12 +77,17 @@ public class MyBotService {
                 }
 
                 if (null != statefulMemoryDataStore.getTimer() && System.currentTimeMillis() > statefulMemoryDataStore.getTimer()) {
-                    if (statefulMemoryDataStore.getPosition() == 1) {
+                    if (statefulMemoryDataStore.getPosition() == 5 && statefulMemoryDataStore.getCurrentPower() != 0) {
+                        statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 20);
+                        return setPower(0d);
+                    }
+                    if (statefulMemoryDataStore.getPosition() == 1 && statefulMemoryDataStore.getCurrentPower() != 0) {
                         statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 20);
                         return setPower(0d);
                     }
                     if (statefulMemoryDataStore.getPosition() == 3) {
                         statefulMemoryDataStore.setPosition(4);
+                        statefulMemoryDataStore.setTimer(null);
                         return setPower(185d);
                     }
                     statefulMemoryDataStore.setTimer(null);
@@ -90,17 +95,17 @@ public class MyBotService {
                 }
 
                 if (last4.getAcc()[1] > 200 && data.getAcc()[1] <= 50) {
-                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 140);
+                    statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 160);
                     statefulMemoryDataStore.setPosition(1);
                     return setPower(220d);
                 }
 
-                if (statefulMemoryDataStore.getPosition() == 1 && last.getAcc()[1] >= 100 && data.getAcc()[1] < 50) {
+                if (statefulMemoryDataStore.getPosition() == 1 && last2.getAcc()[1] >= 90 && data.getAcc()[1] < 50) {
                     statefulMemoryDataStore.setPosition(2);
                     return setPower(160d);
                 }
 
-                if (statefulMemoryDataStore.getPosition() == 2 && last.getAcc()[1] >= 100 && data.getAcc()[1] < 50) {
+                if (statefulMemoryDataStore.getPosition() == 2 && last2.getAcc()[1] >= 90 && data.getAcc()[1] < 50) {
                     statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 20);
                     statefulMemoryDataStore.setPosition(3);
                     return setPower(150d);
