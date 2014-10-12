@@ -42,6 +42,15 @@ public class StatefulMemoryDataStore {
 
     private List<Long> times = new ArrayList<Long>();
 
+    private int lapCounter = 0;
+
+    public int getLapCounter() {
+        return lapCounter;
+    }
+
+    public void incrementLapCounter() {
+        lapCounter += 5;
+    }
 
     @Autowired
     public void setSensorEventDAO(SensorEventDAO sensorEventDAO) {
