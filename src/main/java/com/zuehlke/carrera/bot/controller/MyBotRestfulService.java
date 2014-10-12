@@ -1,6 +1,7 @@
 package com.zuehlke.carrera.bot.controller;
 
 import com.zuehlke.carrera.bot.model.SensorEvent;
+import com.zuehlke.carrera.bot.model.SensorEventType;
 import com.zuehlke.carrera.bot.service.MyBotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,14 @@ public class MyBotRestfulService {
         return myBotService.start();
     }
 
-    @RequestMapping(value = "sensor", method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "sensor", method = RequestMethod.POST)
     @ResponseBody
-    public double handleSensorEvent(@RequestBody SensorEvent data) {
+    public double handleSensorEvent(@RequestBody String data) {
         long timeStampReceived = System.currentTimeMillis();
-        data.setTimeStampReceived(timeStampReceived);
-        double power = myBotService.handleSensorEvent(data);
-        LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data.toString());
+        SensorEvent sensorEvent = parseSensorEventJson(data);
+        sensorEvent.setTimeStampReceived(timeStampReceived);
+        double power = myBotService.handleSensorEvent(sensorEvent);
+        LOGGER.info("Data received for handleSensorEvent() (" + (System.currentTimeMillis() - timeStampReceived) + "ms): " + data);
         return power;
     }
 
@@ -60,51 +62,47 @@ public class MyBotRestfulService {
         myBotService.storeSensorEvents();
         return "success";
     }
-/*/
-    @RequestMapping(value = "test", method = RequestMethod.POST)
-    @ResponseBody
-    public void test(@RequestBody String data) {
-        LOGGER.info("data received: " + data);
-    }
 
-    private SensorEvent parseSensorEventJson(String json) {
+    private static SensorEvent parseSensorEventJson(String json) {
         if (null == json || json.isEmpty()) {
             return null;
         }
-        SensorEvent sensorEvent = new SensorEvent();
+        SensorEvent sensorEvent;
 
         StringBuilder sb = new StringBuilder(json);
         sb.delete(0, sb.indexOf("{"));
         sb.deleteCharAt(sb.lastIndexOf("}"));
 
+        int start = sb.indexOf("timeStamp") + 11;
+        long timestamp = Long.parseLong(sb.substring(start, sb.indexOf(",", start)).trim());
+
         int lastBracket = sb.lastIndexOf("[");
-        if (lastBracket >= -1) {
-            StringTokenizer st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]")), ",");
+        int lastPos = lastBracket;
+        if (lastBracket > -1) {
+            StringTokenizer st = new StringTokenizer(sb.substring(lastBracket + 1, sb.lastIndexOf("]")), ",");
             float magX = Float.parseFloat(st.nextToken().trim());
             float magY = Float.parseFloat(st.nextToken().trim());
             float magZ = Float.parseFloat(st.nextToken().trim());
 
-            int lastPos = lastBracket;
-            lastBracket = sb.lastIndexOf("[", lastPos);
-            st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]", lastPos)), ",");
+            lastBracket = sb.lastIndexOf("[", lastPos - 1);
+            st = new StringTokenizer(sb.substring(lastBracket + 1, sb.lastIndexOf("]", lastPos)), ",");
             float gyrX = Float.parseFloat(st.nextToken().trim());
             float gyrY = Float.parseFloat(st.nextToken().trim());
             float gyrZ = Float.parseFloat(st.nextToken().trim());
 
             lastPos = lastBracket;
-            lastBracket = sb.lastIndexOf("[", lastPos);
-            st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]", lastPos)), ",");
+            lastBracket = sb.lastIndexOf("[", lastPos - 1);
+            st = new StringTokenizer(sb.substring(lastBracket + 1, sb.lastIndexOf("]", lastPos)), ",");
             float accX = Float.parseFloat(st.nextToken().trim());
             float accY = Float.parseFloat(st.nextToken().trim());
             float accZ = Float.parseFloat(st.nextToken().trim());
 
-            lastPos = sb.lastIndexOf(",", lastBracket);
-            long timestamp = Long.parseLong(sb.substring(sb.lastIndexOf(":", lastPos), lastPos).trim());
+            sensorEvent = new SensorEvent(new float[]{accX, accY, accZ}, new float[]{gyrX, gyrY, gyrZ}, new float[]{magX, magY, magZ}, timestamp);
+        } else {
+            sensorEvent = new SensorEvent(SensorEventType.ROUND_PASSED, timestamp);
         }
 
-        st.nextToken()
-        String mag = sb.sub
-        return null;
+        return sensorEvent;
     }
-// */
+
 }
