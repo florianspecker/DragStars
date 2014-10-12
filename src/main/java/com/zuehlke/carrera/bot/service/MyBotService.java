@@ -70,13 +70,17 @@ public class MyBotService {
                 if (SensorEventType.ROUND_PASSED.equals(last2.getType())) {
                     last2 = pastEvents.get(pastEvents.size() - 3);
                 }
+                SensorEvent last4 = pastEvents.get(pastEvents.size() - 4);
+                if (SensorEventType.ROUND_PASSED.equals(last4.getType())) {
+                    last4 = pastEvents.get(pastEvents.size() - 5);
+                }
 
                 if (null != statefulMemoryDataStore.getTimer() && System.currentTimeMillis() > statefulMemoryDataStore.getTimer()) {
                     statefulMemoryDataStore.setTimer(null);
                     return setPower(150d);
                 }
 
-                if (last2.getAcc()[1] > 200 && data.getAcc()[1] <= 50) {
+                if (last4.getAcc()[1] > 200 && data.getAcc()[1] <= 50) {
                     statefulMemoryDataStore.setTimer(System.currentTimeMillis() + 200);
                     statefulMemoryDataStore.setPosition(1);
                     return setPower(250d);
