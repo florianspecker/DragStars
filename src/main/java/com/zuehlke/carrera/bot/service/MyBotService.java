@@ -1,6 +1,7 @@
 package com.zuehlke.carrera.bot.service;
 
 import com.zuehlke.carrera.bot.model.SensorEvent;
+import com.zuehlke.carrera.bot.model.SensorEventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
 public class MyBotService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyBotService.class);
-    private static final double INITIAL_POWER = 250;
+    private static final double INITIAL_POWER = 160;
 
     private StatefulMemoryDataStore statefulMemoryDataStore;
 
@@ -52,25 +53,44 @@ public class MyBotService {
      */
     public double handleSensorEvent(SensorEvent data) {
         statefulMemoryDataStore.addSensorEvent(data);
-//        switch (data.getType()) {
-//            case CAR_SENSOR_DATA:
+        switch (data.getType()) {
+            case CAR_SENSOR_DATA:
                 // Sensor data from the mounted car sensor
-                if (statefulMemoryDataStore.getTimes().isEmpty()) {
-                    statefulMemoryDataStore.getTimes().add(System.currentTimeMillis());
-                } else if (System.currentTimeMillis() - statefulMemoryDataStore.getTimes().get(0) > 440) {
-                    return setPower(150d);
-                } else if (System.currentTimeMillis() - statefulMemoryDataStore.getTimes().get(0) > 400) {
-                    return setPower(50d);
+                List<SensorEvent> pastEvents = statefulMemoryDataStore.getSensorEvents();
+                if (pastEvents.size() < 2) {
+                    return setPower(null);
                 }
+
+                SensorEvent last = pastEvents.get(pastEvents.size() - 1);
+                if (SensorEventType.ROUND_PASSED.equals(last.getType())) {
+                    last = pastEvents.get(pastEvents.size() - 2);
+                }
+
+                if (statefulMemoryDataStore.getCurrentPower() == 0) {
+                    return setPower(1d);
+                }
+                if (statefulMemoryDataStore.getCurrentPower() == 1) {
+                    return setPower(150d);
+                }
+                float gyrZDiff = data.getGyr()[2] - last.getGyr()[2];
+                if (gyrZDiff < -5) {
+                    // curve ahead!
+                    if (statefulMemoryDataStore.getCurrentPower() == 220) {
+                        return setPower(0d);
+                    }
+                    return setPower(150d);
+                }
+                if (gyrZDiff > 0 && gyrZDiff < 1 && data.getGyr()[2] > 500) {
+                    // straight ahead!
+                    return setPower(220d);
+                }
+
                 return setPower(null);
-
-//            case ROUND_PASSED:
+            case ROUND_PASSED:
                 // A round has been passed - generated event from the light barrier
-//                statefulMemoryDataStore.addTimestamp(data.getTimeStamp());
-//                return setPower(INITIAL_POWER + statefulMemoryDataStore.getCurrentPowerIncrement());
-//        }
-        //return 0;
+                return setPower(null);
+        }
+        return 0;
     }
-
 
 }
