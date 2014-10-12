@@ -25,12 +25,12 @@ public class SensorEvent implements Serializable {
     }
 
     private SensorEventType type;
-    private long timeStamp;
+    private long timeStamp = -1;
     private float[] acc;
     private float[] gyr;
     private float[] mag;
-    private long timeStampReceived;
-    private double power;
+    private long timeStampReceived = -1;
+    private double power = -1;
 
     /**
      * Empty constructor for serialisation
