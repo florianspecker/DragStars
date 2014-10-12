@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.StringTokenizer;
+
 /**
  * REST API of the Bot
  * Created by P. Buettiker on 10/5/14.
@@ -58,5 +60,51 @@ public class MyBotRestfulService {
         myBotService.storeSensorEvents();
         return "success";
     }
+/*/
+    @RequestMapping(value = "test", method = RequestMethod.POST)
+    @ResponseBody
+    public void test(@RequestBody String data) {
+        LOGGER.info("data received: " + data);
+    }
 
+    private SensorEvent parseSensorEventJson(String json) {
+        if (null == json || json.isEmpty()) {
+            return null;
+        }
+        SensorEvent sensorEvent = new SensorEvent();
+
+        StringBuilder sb = new StringBuilder(json);
+        sb.delete(0, sb.indexOf("{"));
+        sb.deleteCharAt(sb.lastIndexOf("}"));
+
+        int lastBracket = sb.lastIndexOf("[");
+        if (lastBracket >= -1) {
+            StringTokenizer st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]")), ",");
+            float magX = Float.parseFloat(st.nextToken().trim());
+            float magY = Float.parseFloat(st.nextToken().trim());
+            float magZ = Float.parseFloat(st.nextToken().trim());
+
+            int lastPos = lastBracket;
+            lastBracket = sb.lastIndexOf("[", lastPos);
+            st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]", lastPos)), ",");
+            float gyrX = Float.parseFloat(st.nextToken().trim());
+            float gyrY = Float.parseFloat(st.nextToken().trim());
+            float gyrZ = Float.parseFloat(st.nextToken().trim());
+
+            lastPos = lastBracket;
+            lastBracket = sb.lastIndexOf("[", lastPos);
+            st = new StringTokenizer(sb.substring(lastBracket, sb.lastIndexOf("]", lastPos)), ",");
+            float accX = Float.parseFloat(st.nextToken().trim());
+            float accY = Float.parseFloat(st.nextToken().trim());
+            float accZ = Float.parseFloat(st.nextToken().trim());
+
+            lastPos = sb.lastIndexOf(",", lastBracket);
+            long timestamp = Long.parseLong(sb.substring(sb.lastIndexOf(":", lastPos), lastPos).trim());
+        }
+
+        st.nextToken()
+        String mag = sb.sub
+        return null;
+    }
+// */
 }
