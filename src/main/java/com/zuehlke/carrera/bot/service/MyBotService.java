@@ -66,9 +66,9 @@ public class MyBotService {
                     last = pastEvents.get(pastEvents.size() - 2);
                 }
 
-                if (statefulMemoryDataStore.getCurrentPower() == 190d + statefulMemoryDataStore.getLapCounter() && !statefulMemoryDataStore.getTimes().isEmpty()
+                if (statefulMemoryDataStore.getCurrentPower() == 180d + statefulMemoryDataStore.getLapCounter() && !statefulMemoryDataStore.getTimes().isEmpty()
                         && System.currentTimeMillis() > statefulMemoryDataStore.getTimes().get(0) + 150) {
-                    return setPower(190d);
+                    return setPower(180d);
                 }
                 if (statefulMemoryDataStore.getCurrentPower() == 0) {
                     return setPower(1d);
@@ -79,7 +79,7 @@ public class MyBotService {
                 float gyrZDiff = data.getGyr()[2] - last.getGyr()[2];
                 if (gyrZDiff < -5) {
                     // curve ahead!
-                    if (statefulMemoryDataStore.getCurrentPower() == 220) {
+                    if (statefulMemoryDataStore.getCurrentPower() >= 180) {
                         return setPower(0d);
                     }
                     return setPower(150d);
@@ -87,13 +87,13 @@ public class MyBotService {
                 if (gyrZDiff > 0 && gyrZDiff < 1 && data.getGyr()[2] > 500) {
                     // straight ahead!
                     statefulMemoryDataStore.getTimes().add(System.currentTimeMillis());
-                    return setPower(190d + statefulMemoryDataStore.getLapCounter());
+                    return setPower(180d + statefulMemoryDataStore.getLapCounter());
                 }
 
                 return setPower(null);
             case ROUND_PASSED:
                 statefulMemoryDataStore.incrementLapCounter();
-                if (statefulMemoryDataStore.getCurrentPower() == 190d - 5 + statefulMemoryDataStore.getLapCounter()) {
+                if (statefulMemoryDataStore.getCurrentPower() == 180d - 5 + statefulMemoryDataStore.getLapCounter()) {
                     return setPower(statefulMemoryDataStore.getCurrentPower() + 5);
                 }
                 // A round has been passed - generated event from the light barrier
